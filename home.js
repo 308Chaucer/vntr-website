@@ -28,12 +28,12 @@
         {ic:'term-sheet-and-loi',tg:'Terms',nm:'Term sheet',ds:'Negotiate economics, control and protective provisions.',note:'We review the provisions that affect founders most at exit, as set out in Funds Flow.'},
         {ic:'closing',tg:'Close',nm:'Close and funds flow',ds:'Documents, signatures and the closing statement.',note:'The closing statement is reviewed line by line before funds move.'}
       ]},
-    sell:{title:'Sell-side', cap:'Run as a staggered process and reserved for companies we have already served. The Approach page compares it with a broad auction.',
+    sell:{title:'Sell-side', cap:'Reserved for companies we have already served. The Approach page compares the staggered process (VNTR methodology) with a broad auction (other investment banks).',
       steps:[
-        {ic:'positioning-map',tg:'Rank',nm:'Stack rank',ds:'Rank qualified buyers by probability of close.',note:'Each buyer carries a cultural read and its record in diligence.'},
-        {ic:'management-meeting',tg:'Approve',nm:'Seller approves list',ds:'The seller reviews, reorders or strikes names.',note:'No buyer is contacted until the seller has approved the list.'},
+        {ic:'management-meeting',tg:'Curate',nm:'Curate with the client',ds:'Cut the names other banks would send to down to the serious buyers.',note:'The list is curated with the client before the process starts. No buyer is contacted until the client has approved it.'},
+        {ic:'positioning-map',tg:'Rank',nm:'Stack rank',ds:'Rank the curated list by probability of close.',note:'Each buyer carries a cultural read and its record in diligence.'},
         {ic:'teaser',tg:'Release',nm:'Release in waves',ds:'Highest probability buyers first, six names at a time.',note:'A later wave is released only if the previous one did not produce a letter of intent.'},
-        {ic:'term-sheet-and-loi',tg:'Stop',nm:'Three or four letters',ds:'Release stops once three or four letters are in hand.',note:'Names further down the list are never contacted.'},
+        {ic:'term-sheet-and-loi',tg:'Stop',nm:'Three or four letters',ds:'Release stops once three or four letters are in hand.',note:'The process runs longer than a broad auction and produces as many letters or more, from buyers more likely to close.'},
         {ic:'definitive-agreement',tg:'Close',nm:'Select and sign',ds:'Exclusivity, confirmatory diligence and signing.',note:'Engagement and document terms follow the positions set out in Funds Flow.'}
       ]}
   };
@@ -101,7 +101,7 @@
     '<div class="row c3">'+
       '<div><h4>Assets</h4>'+deal('DSV acquires DB Schenker','EUR 14.3bn enterprise value, completed April 2025.')+deal('Platform Science takes Trimble telematics','Completed February 2025.')+'</div>'+
       '<div><h4>Processing</h4>'+deal('Roper and DAT acquire the Convoy platform','About $250m, closed July 2025.')+deal('WiseTech acquires E2open','$2.1bn enterprise value, completed August 2025.')+'</div>'+
-      '<div><h4>Agency</h4>'+deal('Quad-C invests in Armstrong Transport','June 2026. Terms not disclosed.')+deal('AD Ports and Noatum acquire MBS Logistics','EUR 70m enterprise value, signed May 2026.')+'</div>'+
+      '<div><h4>Agency</h4>'+deal('AD Ports and Noatum acquire MBS Logistics','EUR 70m enterprise value, signed May 2026. A forwarder bought for its customer book.')+'</div>'+
     '</div>',
     '<p style="margin:0;font-size:14px">Technology controls assets through robotics and processing through artificial intelligence. An agent-based carrier is a processor, and its independent freight agents and owner operators are the agency.</p>',
     '<p style="margin:0;font-size:14px">A company that combines the three is valued as one business. Once separated, the processing work carries the highest multiple and the agency the lowest, which is why acquirers extract operations and carrier pay from the companies that sell the freight.</p>'
@@ -109,7 +109,7 @@
   var stage=document.getElementById('sx-stage');
   if(!stage) return;
   var foot=document.getElementById('sx-foot'), cap=document.getElementById('sx-cap'), ttl=document.getElementById('sx-title'),
-      seg=document.getElementById('sx-steps'), play=document.getElementById('sx-play');
+      seg=document.getElementById('sx-steps');
   var bands=COLS.map(function(c){
     var b=document.createElement('div'); b.className='sx-band'; stage.appendChild(b);
     var h=document.createElement('div'); h.className='sx-colh'; h.innerHTML='<b>'+c[1]+'</b><i>'+c[2]+'</i>'; stage.appendChild(h);
@@ -131,7 +131,7 @@
       kids.push({el:e, m:mi, i:ki, n:m[2].length, side:k[1]});
     });
   });
-  var step=0, timer=null, pinned=false;
+  var step=0, pinned=false, live=false;
   function put(el,x,y){ el.style.transform='translate('+Math.round(x)+'px,'+Math.round(y)+'px)'; }
   function layout(){
     var W=stage.clientWidth, narrow=W<700, gap=14, headH=narrow?78:80, rowH=narrow?96:82;
@@ -139,7 +139,7 @@
     var geo={}, yoff=0, x0=0, sortedH=0;
     COLS.forEach(function(c,ci){
       var wSort=narrow?W:Math.round((W-2*gap)*c[3]), n=kids.filter(function(k){return k.side===c[0];}).length;
-      var per=Math.max(2,Math.floor((wSort-16)/104)), rows=Math.ceil(n/per);
+      var per=Math.max(2,Math.floor((wSort-16)/(narrow?90:104))), rows=Math.ceil(n/per);
       var w=(step===3 && !narrow)?Math.round((W-2*gap)/3):wSort;
       geo[c[0]]={x:narrow?0:x0, y:narrow?yoff:0, w:w, per:per, rows:rows, h:(step===3&&narrow)?270:headH+rows*rowH+8, i:0};
       if(narrow) yoff+=geo[c[0]].h+gap; else x0+=w+gap;
@@ -148,16 +148,16 @@
     if(narrow) sortedH=yoff-gap; else COLS.forEach(function(c){ geo[c[0]].h=sortedH; });
     /* today geometry: a grid of cells */
     var cols=narrow?2:4, rws=Math.ceil(MODELS.length/cols), cw=W/cols, ch=narrow?112:Math.max(98,sortedH/rws), todayH=rws*ch;
-    var H = step<2 ? (pinned?Math.max(todayH,sortedH):todayH) : sortedH;
-    if(pinned && !narrow){ ch=H/rws; }
+    var H = live ? Math.max(todayH,sortedH) : (step<2 ? todayH : sortedH);      /* constant height while scroll drives it */
+    if(live){ ch=H/rws; }
     parents.forEach(function(p,mi){
       var cx=(mi%cols)*cw+cw/2, cy=Math.floor(mi/cols)*ch+ch/2-38;
-      put(p,cx,cy); p.classList.toggle('off', step>0);
+      put(p,cx,cy); p.classList.toggle('off', step>0); p.setAttribute('aria-hidden', step>0?'true':'false');
     });
     kids.forEach(function(k){
       var cx=(k.m%cols)*cw+cw/2, cy=Math.floor(k.m/cols)*ch+ch/2-42;
       if(step<2){
-        var spread=Math.min(58,cw/4-4), dx = k.n===1 ? 0 : (k.i===0?-spread:spread);
+        var spread=narrow?cw/4:Math.min(58,cw/4-4), dx = k.n===1 ? 0 : (k.i===0?-spread:spread);
         put(k.el, cx+(step===1?dx:0), cy);
       } else if(step===2){
         var g=geo[k.side], j=g.i++, cellw=(g.w-16)/g.per;
@@ -165,7 +165,7 @@
       } else {
         var g3=geo[k.side]; put(k.el, g3.x+g3.w/2, g3.y+26);
       }
-      k.el.classList.toggle('on', step>0 && step<3);
+      k.el.classList.toggle('on', step>0 && step<3); k.el.setAttribute('aria-hidden', (step>0 && step<3)?'false':'true');
       k.el.classList.toggle('tagged', step===1);
     });
     COLS.forEach(function(c,ci){
@@ -173,7 +173,7 @@
       b.band.style.left=g.x+'px'; b.band.style.top=g.y+'px'; b.band.style.width=g.w+'px'; b.band.style.height=g.h+'px'; b.band.style.bottom='auto';
       b.head.style.left=g.x+'px'; b.head.style.top=g.y+'px'; b.head.style.width=g.w+'px';
       b.band.classList.toggle('on',on); b.head.classList.toggle('on',step===2);
-      var sd=sides[ci]; sd.style.left=g.x+'px'; sd.style.width=g.w+'px'; sd.style.top=(g.y+Math.max(0,(g.h-sd.offsetHeight)/2))+'px'; sd.classList.toggle('on',step===3);
+      var sd=sides[ci]; sd.style.left=g.x+'px'; sd.style.width=g.w+'px'; sd.style.top=(g.y+Math.max(0,(g.h-sd.offsetHeight)/2))+'px'; sd.classList.toggle('on',step===3); sd.setAttribute('aria-hidden', step===3?'false':'true'); b.head.setAttribute('aria-hidden', step===2?'false':'true');
     });
     stage.style.height=H+'px';
   }
@@ -186,13 +186,7 @@
     if(!pinned) tok((step+.5)/4);
   }
   function setStep(s){ if(s===step) return; step=s; render(); }
-  function stop(){ if(timer){ clearInterval(timer); timer=null; play.textContent='Play'; } }
-  play.addEventListener('click',function(){
-    if(timer){ stop(); return; }
-    step=0; render(); play.textContent='Pause';
-    timer=setInterval(function(){ if(step>=3){ stop(); return; } step++; render(); },3200);
-  });
-  function footLock(){ foot.style.minHeight=''; if(!pinned) return; var mx=0; for(var s=0;s<4;s++){ foot.innerHTML=FOOT[s]; mx=Math.max(mx,foot.offsetHeight); } foot.style.minHeight=mx+'px'; foot.innerHTML=FOOT[step]; }
+  function footLock(){ foot.style.minHeight=''; if(!live) return; var mx=0; for(var s=0;s<4;s++){ foot.innerHTML=FOOT[s]; mx=Math.max(mx,foot.offsetHeight); } foot.style.minHeight=mx+'px'; foot.innerHTML=FOOT[step]; }
   render();
   /* scroll map while pinned: four steps over the first 76 percent, then the three
      categories enlarge toward the viewer before the section releases */
@@ -207,18 +201,18 @@
     exEl.style.background='rgba(31,31,31,'+Math.max(0,1-e*1.4)+')';
   }
   var pin=V.pin(document.getElementById('sx-pin'),{len:3.4,
-    on:function(p){ setStep(Math.min(3,Math.floor(p/STEPS_END*4))); tok(Math.min(1,p/STEPS_END)); zoom(Math.max(0,Math.min(1,(p-ZOOM_START)/(1-ZOOM_START-.03)))); },
-    mode:function(on){ pinned=on; if(on) stop(); else zoom(0); footLock(); layout(); }});
+    on:function(p){
+      if(pinned){ setStep(Math.min(3,Math.floor(p/STEPS_END*4))); tok(Math.min(1,p/STEPS_END)); zoom(Math.max(0,Math.min(1,(p-ZOOM_START)/(1-ZOOM_START-.03)))); }
+      else { setStep(Math.min(3,Math.floor(p*4))); tok(p); }
+    },
+    mode:function(on,lv){ pinned=on; live=!!lv; if(!on) zoom(0); footLock(); layout(); }});
   seg.addEventListener('click',function(ev){
-    var b=ev.target.closest('button'); if(!b) return; stop();
+    var b=ev.target.closest('button'); if(!b) return;
     if(pinned) pin.scrollTo((+b.dataset.s+.5)/4*STEPS_END); else { step=+b.dataset.s; render(); }
   });
   window.addEventListener('resize',function(){ zBase=null; });
   window.addEventListener('resize',layout);
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ layout(); pin.set(); });
-  if(V.motion && 'IntersectionObserver' in window){
-    var seen=false; new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting && !seen && !pinned){ seen=true; play.click(); } }); },{threshold:.5}).observe(stage);
-  }
 
   /* ---------- depth ---------- */
   var hero=document.getElementById('hero'), hc=document.getElementById('hero-copy'), hs=document.getElementById('hero-ship');

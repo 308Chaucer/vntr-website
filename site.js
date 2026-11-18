@@ -10,7 +10,8 @@
   if(nav){
     nav.innerHTML='<div class="nav-in">'+lockup()+'<button class="nav-toggle" aria-expanded="false">Menu</button><nav class="nav-links">'+
       PAGES.map(function(p){return '<a href="'+p[0]+'"'+(p[0]===here?' class="on"':'')+'>'+p[1]+'</a>';}).join('')+
-      '<a class="cta" href="contact.html">Contact</a></nav></div>';
+      '<a class="cta" href="contact.html">Contact</a>'+
+      '<a class="cta login" href="https://slate.vntr.co" target="_blank" rel="noopener">Login</a></nav></div>';
     var t=nav.querySelector('.nav-toggle'), l=nav.querySelector('.nav-links');
     t.addEventListener('click',function(){ t.setAttribute('aria-expanded', l.classList.toggle('open')?'true':'false'); });
   }
@@ -31,9 +32,9 @@
   /* ---------- workflow animation engine ---------- */
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   function flow(el, def){
-    var steps, path, pos=0, timer=null, visible=false, userPaused=false, tiles=[], token, note, btn;
+    var steps, path, pos=0, tiles=[], token, note, pin=null, V=null;
     function build(d){
-      el.style.position='relative'; stop(); steps=d.steps; path=d.path || d.steps.map(function(s,i){return {s:i, note:s.note||s.ds};}); pos=0;
+      el.style.position='relative'; steps=d.steps; path=d.path || d.steps.map(function(s,i){return {s:i, note:s.note||s.ds};}); pos=0;
       el.innerHTML='<div class="flow-track"><img class="flow-token" src="assets/logos/vntr_emblem_platinum.png" alt=""></div>'+
         '<div class="flow-steps" style="grid-template-columns:repeat('+steps.length+',1fr)">'+
         steps.map(function(s,i){
@@ -42,16 +43,13 @@
         }).join('')+'</div>'+
         '<div style="display:flex;justify-content:space-between;gap:20px;align-items:flex-start;flex-wrap:wrap">'+
         '<div class="flow-note" style="flex:1;min-width:240px"></div>'+
-        '<button class="btn q" style="margin-top:12px;padding:9px 14px">Pause</button></div>';
-      tiles=[].slice.call(el.querySelectorAll('.fs')); token=el.querySelector('.flow-token');
-      note=el.querySelector('.flow-note'); btn=el.querySelector('.btn');
+        '<span class="scroll-hint">Scroll to advance</span></div>';
+      tiles=[].slice.call(el.querySelectorAll('.fs')); token=el.querySelector('.flow-token'); note=el.querySelector('.flow-note');
       tiles.forEach(function(t){ t.addEventListener('click',function(){
-        userPaused=true; stop();
         var i=+t.dataset.i, k=0; for(var j=0;j<path.length;j++){ if(path[j].s===i){k=j;break;} }
-        pos=k; show();
+        if(pin && pin.on) pin.scrollTo((k+.5)/path.length); else { pos=k; show(); }
       });});
-      btn.addEventListener('click',function(){ if(timer){ userPaused=true; stop(); } else { userPaused=false; if(pos>=path.length-1) pos=0; show(); start(); } });
-      show(); if(visible && !userPaused && !reduce) start();
+      show();
     }
     function show(){
       var cur=path[pos], seen={};
@@ -59,33 +57,37 @@
       tiles.forEach(function(t,i){ t.classList.toggle('on', i===cur.s); t.classList.toggle('seen', !!seen[i] && i!==cur.s); });
       var tl=tiles[cur.s]; token.style.left=(tl.offsetLeft+tl.offsetWidth/2)+'px';
       note.innerHTML='<b>'+steps[cur.s].nm+'.</b> <span>'+cur.note+'</span>';
-      btn.textContent = timer ? 'Pause' : (pos>=path.length-1 ? 'Replay' : 'Play');
     }
-    function start(){
-      if(timer) return;
-      timer=setInterval(function(){
-        if(pos>=path.length-1){ pos=0; } else { pos++; }
-        show();
-      }, def.interval||2600);
-      btn.textContent='Pause';
-    }
-    function stop(){ if(timer){ clearInterval(timer); timer=null; } if(btn) btn.textContent = 'Play'; }
-    if('IntersectionObserver' in window){
-      new IntersectionObserver(function(es){ es.forEach(function(e){
-        visible=e.isIntersecting; if(visible && !userPaused && !reduce) start(); else if(!visible) stop();
-      });},{threshold:.3}).observe(el);
+    function len(){ return Math.max(1, path.length*0.26); }
+    build(def);
+    /* scroll drives the steps: the exhibit pins while the reader scrolls through the workflow */
+    V=window.VNTR;
+    if(V && V.pin){
+      var frame=el.closest('.ex')||el, wrap=document.createElement('div'), inner=document.createElement('div');
+      /* pin the whole section when it fits the window, so the heading stays with the workflow */
+      var sec=el.closest('section'), secWrap=sec && sec.querySelector(':scope > .wrap');
+      if(secWrap && secWrap.contains(el) && secWrap.offsetHeight + 76 <= window.innerHeight - 6 && window.innerWidth > 900) frame=secWrap;
+      wrap.className='pin'; inner.className='pin-in';
+      frame.parentNode.insertBefore(wrap, frame); wrap.appendChild(inner); inner.appendChild(frame);
+      var opt={len:len(), on:function(p){ var k=Math.min(path.length-1, Math.floor(p*path.length)); if(k!==pos){ pos=k; show(); } }};
+      pin=V.pin(wrap,opt);
+      window.addEventListener('resize',function(){ if(tiles.length) show(); });
+      return {load:function(d){ def=d; build(d); opt.len=len(); pin.set(); }};
     }
     window.addEventListener('resize',function(){ if(tiles.length) show(); });
-    build(def);
-    return {load:function(d){ def=d; userPaused=false; build(d); }};
+    return {load:function(d){ def=d; build(d); }};
   }
-  window.VNTR={flow:flow, BOOK:BOOK, reduce:reduce};
+  window.VNTR=window.VNTR||{}; window.VNTR.flow=flow; window.VNTR.BOOK=BOOK; window.VNTR.reduce=reduce;
+  function ext(root){ [].forEach.call((root||document).querySelectorAll('a[href^="http"]'),function(x){ x.target='_blank'; x.rel='noopener'; }); }
+  window.VNTR.ext=ext; ext();
+  window.addEventListener('load',function(){ ext(); });
 })();
 
 /* ---------- scroll: reveal, depth, pinned scrubbing ---------- */
 (function(){
   var V=window.VNTR, reduce=V.reduce, stat=/[?&]static/.test(location.search);
   V.motion = !reduce && !stat;
+  if(V.motion) document.documentElement.classList.add('motion');
 
   /* reveal on scroll, staggered inside rows */
   if(V.motion && 'IntersectionObserver' in window){
@@ -117,18 +119,21 @@
   V.pin=function(wrap, opt){
     var inner=wrap.querySelector('.pin-in');
     var mq=window.matchMedia('(min-width:901px)');
-    var p={wrap:wrap, inner:inner, opt:opt, on:false, last:-1};
+    var p={wrap:wrap, inner:inner, opt:opt, on:false, live:false, last:-1, off:76};
     function set(){
-      p.on = V.motion && mq.matches;
+      p.live = V.motion;                       /* scroll drives the exhibit */
+      p.on = V.motion && mq.matches;           /* and pins it when it fits the window */
       wrap.classList.toggle('pin-on', p.on);
-      if(opt.mode) opt.mode(p.on);
-      /* pin only when the whole stage fits beneath the navigation bar */
+      inner.style.top=''; wrap.style.height='';
+      if(opt.mode) opt.mode(p.on, p.live);
       if(p.on && inner.offsetHeight + 76 > window.innerHeight + 14){
-        p.on=false; wrap.classList.remove('pin-on'); if(opt.mode) opt.mode(false);
+        p.on=false; wrap.classList.remove('pin-on'); if(opt.mode) opt.mode(false, p.live);
       }
-      p.off = 76 + Math.max(0,(window.innerHeight-76-inner.offsetHeight)/2 - 10);
-      inner.style.top = p.on ? p.off+'px' : '';
-      wrap.style.height = p.on ? (inner.offsetHeight + (opt.len||2)*window.innerHeight)+'px' : '';
+      if(p.on){
+        p.off = 76 + Math.max(0,(window.innerHeight-76-inner.offsetHeight)/2 - 10);
+        inner.style.top = p.off+'px';
+        wrap.style.height = (inner.offsetHeight + (opt.len||2)*window.innerHeight)+'px';
+      }
       p.last=-1; update();
     }
     p.set=set; pins.push(p);
@@ -146,9 +151,11 @@
     ticking=false;
     var y=window.pageYOffset, vh=window.innerHeight;
     pins.forEach(function(p){
-      if(!p.on) return;
-      var r=p.wrap.getBoundingClientRect(), span=p.wrap.offsetHeight-p.inner.offsetHeight;
-      var prog=Math.max(0,Math.min(1,(p.off-r.top)/span));
+      if(!p.live) return;
+      var r=p.wrap.getBoundingClientRect(), prog;
+      if(p.on){ prog=(p.off-r.top)/(p.wrap.offsetHeight-p.inner.offsetHeight); }
+      else { prog=(vh*0.78 - r.top)/(vh*0.42 + r.height*0.55); }     /* advances as the exhibit crosses the window */
+      prog=Math.max(0,Math.min(1,prog));
       if(prog!==p.last){ p.last=prog; p.opt.on(prog); }
     });
     if(V.motion) depth.forEach(function(d){

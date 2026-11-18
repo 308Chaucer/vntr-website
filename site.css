@@ -162,11 +162,11 @@ td b{color:var(--white)}
 .lane-h{display:flex; justify-content:space-between; gap:18px; flex-wrap:wrap; align-items:baseline; margin-bottom:10px}
 .lane-n{font-size:12px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:var(--white)}
 .lane-s{font-size:13.5px; color:var(--lgray)}
-.dots{display:flex; flex-wrap:wrap; gap:5px; margin-bottom:12px}
-.dot{width:13px; height:13px; border:1px solid #3d3d3d}
+.dots{display:flex; flex-wrap:wrap; gap:4px; margin-bottom:12px}
+.dot{width:11px; height:11px; border:1px solid #3d3d3d}
 .dot.s1{border-color:#5a5a5a; background:#484848}
 .dot.s2{border-color:var(--pewter); background:var(--pewter)}
-.dot.s3{border-color:var(--platinum); background:var(--platinum); box-shadow:inset 0 0 0 3px var(--ink)}
+.dot.s3{border-color:var(--platinum); background:var(--platinum); box-shadow:inset 0 0 0 2px var(--ink)}
 .dot.s4{border-color:var(--platinum); background:var(--platinum)}
 .dot.s5{border-color:#50545a; background:#3f4348}
 .legend{display:flex; gap:18px; flex-wrap:wrap; margin-top:16px}
@@ -275,3 +275,37 @@ footer{background:var(--ink); border-top:1px solid var(--rule); padding:30px 0 2
 .lane .row{gap:10px 20px; margin-top:4px}
 .note{padding-top:0}
 @media (max-width:900px){ .fs{padding:0} .row{gap:22px} }
+
+/* nav login and keyboard focus */
+.nav-links a.cta.login{border-color:var(--platinum); color:var(--platinum); margin-left:-18px}
+.nav-links a.cta.login:hover{background:var(--platinum); color:var(--ink)}
+a:focus-visible, button:focus-visible, input:focus-visible{outline:1px solid var(--platinum); outline-offset:3px}
+.sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+@media (max-width:900px){ .nav-links a.cta.login{margin-left:0} }
+
+/* QA pass */
+html{background:var(--ink)}
+.hero-ship{clip-path:inset(1% 1% 5% 1%)}
+.fs{display:flex; flex-direction:column; align-items:flex-start; justify-content:flex-start; opacity:.6}
+.fs.seen{opacity:.82}
+.fs.on{opacity:1}
+@media (max-width:900px){
+  .fs{display:grid}
+  .ft{display:grid; grid-template-columns:1fr 1fr; gap:26px 20px}
+}
+
+.sx-kid em{position:absolute; left:0; right:0; top:100%}
+@media (max-width:700px){
+  .sx-kid{width:86px; margin-left:-43px}
+  .sx-kid span{font-size:10.5px}
+  .sx-kid em{font-size:8px; letter-spacing:1.2px}
+}
+
+/* scroll-driven exhibits */
+.scroll-hint{display:none; font-size:10.5px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--lgray); margin-top:16px; white-space:nowrap}
+.motion .scroll-hint{display:inline-block}
+.pin-hint{display:none}
+
+/* every button inverts on hover */
+.btn.q:hover{background:var(--platinum); border-color:var(--platinum); color:var(--ink)}
+.nav-links a.cta:hover{background:var(--platinum); border-color:var(--platinum); color:var(--ink)}

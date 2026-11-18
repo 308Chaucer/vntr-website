@@ -4,10 +4,10 @@
 
   /* ---------- Exhibit 1: process workflows ---------- */
   var PF={
-    stag:{title:'Staggered process', cap:'Release and count repeat until three or four letters of intent are in hand.',
+    stag:{title:'Staggered Process (VNTR Methodology)', cap:'The list is curated with the client first. Release and count then repeat until three or four letters of intent are in hand. The process is longer and the letters come from buyers more likely to close.',
       steps:[
-        {ic:'positioning-map',tg:'Rank',nm:'Stack rank',ds:'Rank buyers by probability of close.'},
-        {ic:'management-meeting',tg:'Approve',nm:'Seller approval',ds:'The seller sets the final list.'},
+        {ic:'management-meeting',tg:'Curate',nm:'Curate with the client',ds:'Cut the same 200 names to the serious buyers.'},
+        {ic:'positioning-map',tg:'Rank',nm:'Stack rank',ds:'Rank the curated list by probability of close.'},
         {ic:'teaser',tg:'Release',nm:'Release a wave',ds:'Six names, top of the list first.'},
         {ic:'term-sheet-and-loi',tg:'Count',nm:'Count letters',ds:'Letters of intent in hand.'},
         {ic:'bids-and-offers',tg:'Stop',nm:'Stop release',ds:'Three or four letters reached.'},
@@ -15,26 +15,28 @@
         {ic:'definitive-agreement',tg:'Sign',nm:'Sign',ds:'Purchase agreement executed.'}
       ],
       path:[
-        {s:0,note:'Each qualified buyer is ranked on probability of close, with a read on how it behaves in diligence. Buyers with a record of re-trading or of long diligence that fails move down the list or come off it.'},
-        {s:1,note:'We present an overview of each buyer and our view of what it will pay, based on transactions it has completed. The seller approves, reorders or strikes names.'},
+        {s:0,note:'We start from the same 200 names other investment banks would contact and go through them with the client before anything is sent. Buyers that are not qualified, or that have a record of re-trading or of long diligence that fails, come off. The size of the curated list varies by mandate.'},
+        {s:1,note:'Each remaining buyer is ranked on probability of close, with an overview of how it behaves in diligence and our view of what it will pay, based on transactions it has completed. The client approves the order.'},
         {s:2,note:'Wave 1. The six highest probability buyers are approached. The memorandum goes only to those that clear a first conversation.'},
         {s:3,note:'One letter of intent in hand after wave 1. Release continues.'},
         {s:2,note:'Wave 2. The next six names are approached.'},
         {s:3,note:'Two letters of intent in hand. Release continues.'},
         {s:2,note:'Wave 3. Six more names are approached.'},
-        {s:3,note:'Three letters of intent in hand.'},
-        {s:4,note:'Release stops at 18 of 40 names. The remaining names are not contacted.'},
+        {s:3,note:'Three letters of intent in hand. Release continues.'},
+        {s:2,note:'Wave 4. Six more names are approached.'},
+        {s:3,note:'Four letters of intent in hand, as many as a broad auction produces or more, over a longer period.'},
+        {s:4,note:'In the model, release stops after 24 names. The rest of the curated list is not contacted.'},
         {s:5,note:'One counterparty is selected and granted exclusivity for confirmatory diligence.'},
         {s:6,note:'Documents are negotiated on the terms in the letter of intent and the purchase agreement is signed.'}
       ], interval:2500},
-    auction:{title:'Broad auction', cap:'The conventional two-round process, run on a fixed calendar across the whole field.',
+    auction:{title:'Broad Auction (Other Investment Banks)', cap:'The two-round process other investment banks run, sent to about 200 names on a fixed calendar.',
       steps:[
-        {ic:'teaser',tg:'Release',nm:'Teaser to all',ds:'All 40 buyers contacted at once.',note:'Every name on the list learns the company is for sale in the same week.'},
-        {ic:'nda',tg:'Sign',nm:'Non-disclosure',ds:'Agreements signed across the field.',note:'In the model, 28 of 40 parties sign and 12 decline.'},
-        {ic:'cim',tg:'Distribute',nm:'Memorandum',ds:'Sent to every party that signed.',note:'28 parties now hold the confidential memorandum, including competitors.'},
+        {ic:'teaser',tg:'Release',nm:'Teaser to 200',ds:'About 200 names contacted at once.',note:'Within the first week about 25 percent of that market has worked out who is for sale, before signing anything.'},
+        {ic:'nda',tg:'Sign',nm:'Non-disclosure',ds:'Agreements signed across the field.',note:'About 70 percent sign, many of them to see the numbers.'},
+        {ic:'cim',tg:'Distribute',nm:'Memorandum',ds:'Sent to every party that signed.',note:'About 140 parties now hold the confidential memorandum, including competitors.'},
         {ic:'bids-and-offers',tg:'Round 1',nm:'Indications',ds:'First round bids on a fixed date.',note:'The field is cut on indications of interest. Parties that drop keep the memorandum.'},
-        {ic:'management-meeting',tg:'Meet',nm:'Management meetings',ds:'Presentations to the remaining field.',note:'In the model, seven buyers meet management.'},
-        {ic:'term-sheet-and-loi',tg:'Round 2',nm:'Bid date',ds:'Letters of intent on a fixed date.',note:'Four letters of intent are received on the bid date.'},
+        {ic:'management-meeting',tg:'Meet',nm:'Management meetings',ds:'Presentations to the remaining field.',note:'In the model, eight buyers meet management.'},
+        {ic:'term-sheet-and-loi',tg:'Round 2',nm:'Bid date',ds:'Letters of intent on a fixed date.',note:'In the model, three letters of intent are received on the bid date.'},
         {ic:'definitive-agreement',tg:'Sign',nm:'Exclusivity and signing',ds:'One buyer selected, documents signed.',note:'One buyer is selected for exclusivity, confirmatory diligence and signing.'}
       ], interval:2500}
   };
@@ -50,33 +52,40 @@
   }
 
   /* ---------- Exhibit 2: release simulation ---------- */
-  var N=40, WEEKS=24;
+  var WEEKS=28;
+  /* a: approached, c: knows who is for sale, d: diligence, l: letter of intent, o: out */
   function rec(a,c,d,l,o){ return {a:a,c:c,d:d,l:l,o:o}; }
-  function build(f){ var r=[]; for(var i=0;i<N;i++) r.push(f(i)); return r; }
-  var AUCTION={name:'Broad auction',
-    phase:[[0,'Preparation. Nothing in market.'],[2,'All 40 buyers contacted in a single release.'],[4,'Non-disclosure agreements signed. 28 parties receive the memorandum.'],
-      [8,'Indications of interest requested from the full field.'],[11,'Field cut. Management meetings under way.'],[14,'Bid date. Four letters of intent received.'],
+  function build(n,f){ var r=[]; for(var i=0;i<n;i++) r.push(f(i)); return r; }
+  var AUCTION={name:'Broad Auction (Other Investment Banks), 200 names',
+    phase:[[0,'Preparation. Nothing in market.'],[1,'Teaser sent to 200 names. About 50 identify the seller before signing anything.'],
+      [4,'Non-disclosure agreements signed, many to see the numbers. 140 parties hold the memorandum.'],
+      [8,'Indications of interest requested from the full field.'],[11,'Field cut. Management meetings under way.'],[14,'Bid date. Three letters of intent received.'],
       [17,'Exclusivity granted. Confirmatory diligence.'],[21,'Documents negotiated. Signing.']],
-    buyers:build(function(i){
-      if(i>=28) return rec(2,null,null,null,4);
-      if(i>=16) return rec(2,4,null,null,8);
-      if(i>=7)  return rec(2,4,null,null,11);
-      if(i>=4)  return rec(2,4,11,null,14);
-      if(i>=1)  return rec(2,4,11,14,17);
-      return rec(2,4,11,14,null);
+    buyers:build(200,function(i){
+      var k = i<50 ? 1 : 4;                          /* 50 identify the seller in week 1, 90 more on signing */
+      if(i>=140) return rec(1,null,null,null,4);     /* 60 never sign */
+      if(i>=24)  return rec(1,k,null,null,8);
+      if(i>=8)   return rec(1,k,null,null,11);
+      if(i>=3)   return rec(1,k,11,null,14);
+      if(i>=1)   return rec(1,k,11,14,17);
+      return rec(1,k,11,14,null);
     })};
-  var STAG={name:'Staggered process',
-    phase:[[0,'Preparation. Buyers stack ranked and the list approved by the seller.'],[2,'Wave 1 released to the six highest probability buyers.'],
-      [5,'Wave 2 released to the next six names.'],[7,'First letter of intent in hand.'],[8,'Wave 3 released to six more names.'],
-      [11,'Three letters of intent. Release stops at 18 of 40 names.'],[13,'Counterparty selected.'],[15,'Exclusivity granted. Confirmatory diligence.'],[19,'Documents negotiated. Signing.']],
-    buyers:build(function(i){
+  var STAG={name:'Staggered Process (VNTR Methodology), curated list, 40 shown',
+    phase:[[0,'Preparation. The same 200 names curated with the client and stack ranked.'],[2,'Wave 1 released to the six highest probability buyers.'],
+      [6,'Wave 2 released to the next six names.'],[8,'First letter of intent in hand.'],[10,'Wave 3 released to six more names.'],
+      [12,'Second letter of intent in hand.'],[14,'Wave 4 released to six more names.'],[16,'Third letter of intent in hand.'],
+      [20,'Four letters of intent. Release stops after 24 names.'],[22,'Counterparty selected.'],[23,'Exclusivity granted. Confirmatory diligence.'],[27,'Documents negotiated. Signing.']],
+    buyers:build(40,function(i){
       switch(i){
-        case 0: return rec(2,3,5,7,null);  case 3: return rec(2,3,5,9,13);  case 7: return rec(5,6,8,11,13);
-        case 1: return rec(2,3,null,null,4); case 4: return rec(2,3,null,null,6); case 2: return rec(2,null,null,null,4);
-        case 5: return rec(2,null,null,null,5); case 8: return rec(5,6,8,null,11); case 9: return rec(5,6,null,null,9);
-        case 6: return rec(5,null,null,null,7); case 10: return rec(5,null,null,null,8); case 11: return rec(5,null,null,null,8);
-        case 13: return rec(8,9,10,null,12); case 14: return rec(8,9,null,null,12); case 12: return rec(8,null,null,null,10);
-        case 15: case 16: case 17: return rec(8,null,null,null,11);
+        case 0: return rec(2,3,5,8,null);       case 3: return rec(2,3,6,12,22);
+        case 1: return rec(2,3,null,null,5);    case 4: return rec(2,3,null,null,7);
+        case 2: return rec(2,null,null,null,4); case 5: return rec(2,null,null,null,5);
+        case 7: return rec(6,7,10,16,22);       case 8: return rec(6,7,9,null,12);     case 9: return rec(6,7,null,null,10);
+        case 6: return rec(6,null,null,null,8); case 10: case 11: return rec(6,null,null,null,9);
+        case 13: return rec(10,11,13,null,16);  case 14: return rec(10,11,null,null,14);
+        case 12: return rec(10,null,null,null,12); case 15: case 16: case 17: return rec(10,null,null,null,13);
+        case 19: return rec(14,15,17,20,22);    case 20: return rec(14,15,null,null,17);
+        case 18: return rec(14,null,null,null,16); case 21: case 22: case 23: return rec(14,null,null,null,17);
         default: return rec(null,null,null,null,null);
       }
     })};
@@ -93,28 +102,22 @@
   function ph(t,w){ var p=t.phase[0][1]; t.phase.forEach(function(e){ if(w>=e[0]) p=e[1]; }); return p; }
   var lanes=document.getElementById('lanes'); if(!lanes) return;
   var slider=document.getElementById('slider'), wk=document.getElementById('wk'), phase=document.getElementById('phase'),
-      play=document.getElementById('play'), reset=document.getElementById('reset'), week=0, timer=null, pinned=false;
+      week=0, pinned=false;
   function tile(n,l){ return '<div class="pn stat" style="padding:12px 10px"><div class="n" style="font-size:26px">'+n+'</div><div class="l">'+l+'</div></div>'; }
   function lane(t,w){
     var m=met(t,w);
     return '<div class="lane"><div class="lane-h"><div class="lane-n">'+t.name+'</div><div class="lane-s">'+ph(t,w)+'</div></div>'+
       '<div class="dots">'+t.buyers.map(function(b){ var s=st(b,w); return '<i class="dot'+(s?' s'+s:'')+'"></i>'; }).join('')+'</div>'+
-      '<div class="row c4">'+tile(m.a,'Buyers approached')+tile(m.c,'Received the memorandum')+tile(m.d,'In diligence')+tile(m.l,'Letters of intent')+'</div></div>';
+      '<div class="row c4">'+tile(m.a,'Buyers approached')+tile(m.c,'Know who is for sale')+tile(m.d,'In diligence')+tile(m.l,'Letters of intent')+'</div></div>';
   }
   function render(){
     wk.textContent=week; slider.value=week;
-    phase.textContent = week===0 ? 'Preparation. Nothing in market.' : 'Both tracks shown against the same 40 name list.';
+    phase.textContent = week===0 ? 'Preparation. Nothing in market.' : 'The same 200 names: all contacted in the auction, curated first in ours.';
     lanes.innerHTML=lane(AUCTION,week)+lane(STAG,week);
   }
-  function stop(){ if(timer){ clearInterval(timer); timer=null; play.textContent='Play'; } }
-  play.addEventListener('click',function(){
-    if(timer){ stop(); return; } if(week>=WEEKS) week=0; play.textContent='Pause';
-    timer=setInterval(function(){ week++; render(); if(week>=WEEKS) stop(); },420);
-  });
-  reset.addEventListener('click',function(){ stop(); week=0; render(); });
-  var pin=V.pin(document.getElementById('sim-pin'),{len:2.2,
+  var pin=V.pin(document.getElementById('sim-pin'),{len:2.4,
     on:function(p){ var w=Math.round(p*WEEKS); if(w!==week){ week=w; render(); } },
-    mode:function(on){ pinned=on; if(on) stop(); }});
-  slider.addEventListener('input',function(){ stop(); if(pinned) pin.scrollTo(+slider.value/WEEKS); else { week=+slider.value; render(); } });
+    mode:function(on){ pinned=on; }});
+  slider.addEventListener('input',function(){ if(pinned) pin.scrollTo(+slider.value/WEEKS); else { week=+slider.value; render(); } });
   render(); pin.set();
 })();

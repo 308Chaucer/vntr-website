@@ -102,11 +102,12 @@
       ['Freight audit and payment','freight-audit-and-payment','Payment flow has high switching cost. Working capital mechanics are modeled before a software multiple is applied.'],
       ['Load boards and matching','load-board-and-marketplace','Liquidity concentrates in the largest networks. Subscale marketplaces are usually valued on their data.'],
       ['Managed transportation','control-tower','Contracted scope and the renewal record are the asset. Savings claims are checked against the shipper\'s own data.'],
+      ['Brokerage operations and carrier pay','working-capital','The load coverage, tracking, billing and carrier payment work inside a brokerage. Acquirers extract it and run it on a shared platform.'],
       ['Data and AI infrastructure','ai-and-data-infrastructure','The cost of building software has fallen, so valuation compresses for any company that is not the system of record for the underlying data.']]],
     ['Agency','Owns the customer: sales organizations, agent books and driver pools.',[
-      ['Freight brokerage','freight-brokerage-and-3pl','Gross margin per head and customer concentration determine the outcome. A brokerage that runs its own software is valued as a brokerage.'],
+      ['Brokerage sales agents','freight-brokerage-and-3pl','The sales side of a brokerage once operations and carrier pay are separated from it. Valued on the book each agent controls and on agent retention.'],
       ['Agent networks','negotiation','Valued as distribution. Agent retention and the commission split carry the valuation.'],
-      ['Freight forwarding','freight-forwarding','The customer book and vertical expertise are the asset. Overhead and undifferentiated software reduce what a buyer will pay.'],
+      ['Forwarder customer books','freight-forwarding','The customer book and vertical expertise are the asset. Overhead and undifferentiated software reduce what a buyer will pay.'],
       ['Owner operator pools','drivers-and-workforce','Capacity sold on commission. Retention and the settlement terms determine the value of the pool.'],
       ['Customs brokerage','customs-and-trade','Compliance record and client tenure are the asset. Books trade to forwarders and to processing platforms.'],
       ['Vertical specialists','pallets','Automotive, aerospace, healthcare and project cargo books with specialist handling, valued on client tenure.']]]
@@ -120,7 +121,7 @@
     var show=function(ci,ni){
       var c=DATA[ci], n=c[2][ni];
       [].forEach.call(map.querySelectorAll('.mm-node'),function(b){ b.classList.toggle('on', +b.dataset.c===ci && +b.dataset.n===ni); });
-      function t(l){ return '<div class="pn stat" style="padding:14px 10px"><div class="lockv">000</div><div class="l">'+l+'</div></div>'; }
+      function t(l){ return '<div class="pn stat" style="padding:14px 10px"><div class="lockv" aria-hidden="true">000</div><div class="l">'+l+'<span class="sr">, held in SLATE</span></div></div>'; }
       detail.innerHTML='<div class="ex-body"><div class="two" style="align-items:center">'+
         '<div style="display:flex;gap:18px;align-items:flex-start"><img src="assets/icons/'+n[1]+'.svg" alt="" style="width:64px;flex:none">'+
         '<div><p class="label" style="margin-bottom:8px">'+c[0]+'</p><h3>'+n[0]+'</h3><p style="margin:0">'+n[2]+'</p></div></div>'+
