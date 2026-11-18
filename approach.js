@@ -4,7 +4,7 @@
 
   /* ---------- Exhibit 1: process workflows ---------- */
   var PF={
-    stag:{title:'Staggered Process (VNTR Methodology)', cap:'The list is curated with the client first. Release and count then repeat until three or four letters of intent are in hand. The process is longer and the letters come from buyers more likely to close.',
+    stag:{title:'Staggered Process (VNTR Methodology)', cap:'Curated with the client, released in waves to pre-vetted buyers.',
       steps:[
         {ic:'management-meeting',tg:'Curate',nm:'Curate with the client',ds:'Cut the same 200 names to the serious buyers.'},
         {ic:'positioning-map',tg:'Rank',nm:'Stack rank',ds:'Rank the curated list by probability of close.'},
@@ -29,7 +29,7 @@
         {s:5,note:'One counterparty is selected and granted exclusivity for confirmatory diligence.'},
         {s:6,note:'Documents are negotiated on the terms in the letter of intent and the purchase agreement is signed.'}
       ], interval:2500},
-    auction:{title:'Broad Auction (Other Investment Banks)', cap:'The two-round process other investment banks run, sent to about 200 names on a fixed calendar.',
+    auction:{title:'Broad Auction (Other Investment Banks)', cap:'About 200 names on a fixed calendar.',
       steps:[
         {ic:'teaser',tg:'Release',nm:'Teaser to 200',ds:'About 200 names contacted at once.',note:'Within the first week about 25 percent of that market has worked out who is for sale, before signing anything.'},
         {ic:'nda',tg:'Sign',nm:'Non-disclosure',ds:'Agreements signed across the field.',note:'About 70 percent sign, many of them to see the numbers.'},
@@ -102,7 +102,7 @@
   function ph(t,w){ var p=t.phase[0][1]; t.phase.forEach(function(e){ if(w>=e[0]) p=e[1]; }); return p; }
   var lanes=document.getElementById('lanes'); if(!lanes) return;
   var slider=document.getElementById('slider'), wk=document.getElementById('wk'), phase=document.getElementById('phase'),
-      week=0, pinned=false;
+      week=0;
   function tile(n,l){ return '<div class="pn stat" style="padding:12px 10px"><div class="n" style="font-size:26px">'+n+'</div><div class="l">'+l+'</div></div>'; }
   function lane(t,w){
     var m=met(t,w);
@@ -112,12 +112,19 @@
   }
   function render(){
     wk.textContent=week; slider.value=week;
-    phase.textContent = week===0 ? 'Preparation. Nothing in market.' : 'The same 200 names: all contacted in the auction, curated first in ours.';
+    phase.textContent = week===0 ? 'Preparation. Nothing in market.' : 'The same 200 names, two release strategies.';
     lanes.innerHTML=lane(AUCTION,week)+lane(STAG,week);
   }
-  var pin=V.pin(document.getElementById('sim-pin'),{len:2.4,
-    on:function(p){ var w=Math.round(p*WEEKS); if(w!==week){ week=w; render(); } },
-    mode:function(on){ pinned=on; }});
-  slider.addEventListener('input',function(){ if(pinned) pin.scrollTo(+slider.value/WEEKS); else { week=+slider.value; render(); } });
-  render(); pin.set();
+  var simBtn=document.getElementById('sim-play'), simTimer=null, simVisible=false, simUser=false;
+  function simStop(){ if(simTimer){ clearTimeout(simTimer); simTimer=null; } simBtn.textContent='Play'; }
+  function simTick(){ simTimer=setTimeout(function(){ week = week>=WEEKS ? 0 : week+1; render(); simTick(); }, week>=WEEKS ? 4500 : 700); }
+  function simStart(){ if(simTimer) return; simBtn.textContent='Pause'; simTick(); }
+  simBtn.addEventListener('click',function(){ if(simTimer){ simUser=true; simStop(); } else { simUser=false; if(week>=WEEKS){ week=0; render(); } simStart(); } });
+  slider.addEventListener('input',function(){ simUser=true; simStop(); week=+slider.value; render(); });
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(es){ es.forEach(function(e){
+      simVisible=e.isIntersecting; if(simVisible && !simUser && !V.reduce) simStart(); else if(!simVisible) simStop();
+    });},{threshold:.3}).observe(lanes);
+  }
+  render();
 })();

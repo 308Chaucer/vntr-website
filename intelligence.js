@@ -11,7 +11,7 @@
         {ic:'comparable-companies',tg:'Intel',nm:'Intel',ds:'Universe, relationships, comparables and benchmarks.',note:'Intel is the research side: who owns what, who knows whom, and what assets have traded for.'},
         {ic:'data-room',tg:'Execute',nm:'Execute',ds:'Pipeline, data rooms, documents and reporting.',note:'Execute runs a process on the same record, with the client able to see every communication.'}
       ]},
-    release:{title:'Benchmark release', cap:'Compensation and transaction aggregates pass four antitrust safe harbor rules before release. The rules are built into the architecture.',
+    release:{title:'Benchmark release', cap:'Aggregates pass four antitrust safe harbor rules before release.',
       steps:[
         {ic:'report',tg:'Submit',nm:'Contribution',ds:'A member submits compensation or transaction data.',note:'Contributions are accepted only from validated members.'},
         {ic:'timeline',tg:'Age',nm:'12 month aging',ds:'Inputs are held for 12 months.',note:'No current data is exchanged between competitors.'},
@@ -20,7 +20,7 @@
         {ic:'fraud-prevention-and-identity',tg:'Anonymize',nm:'Anonymization',ds:'Identity is removed before any figure is shown.',note:'Members see the aggregate and never the contributors behind it.'},
         {ic:'market-update',tg:'Release',nm:'Benchmark',ds:'The aggregate is published to members.',note:'Position level compensation and transaction comparables are released in this form only.'}
       ]},
-    member:{title:'Membership', cap:'Access is limited to principal owners and chief executives, validated before entry and re-confirmed each year.',
+    member:{title:'Membership', cap:'Limited to principal owners and chief executives, validated before entry.',
       steps:[
         {ic:'definitive-agreement',tg:'Verify',nm:'Corporate filings',ds:'Ownership or office is checked against filings.',note:'An applicant\'s role is confirmed from corporate records.'},
         {ic:'fraud-prevention-and-identity',tg:'Verify',nm:'Identity',ds:'The individual is verified.',note:'Identity verification is completed before any data is visible.'},

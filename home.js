@@ -4,7 +4,7 @@
 
   /* ---------- mandate workflows ---------- */
   var MD={
-    buy:{title:'Exclusive buy-side', cap:'One acquirer in a defined lane. Exclusivity is set by subsector, buyer type, revenue band and sourcing channel.',
+    buy:{title:'Exclusive buy-side', cap:'One acquirer in a defined lane.',
       steps:[
         {ic:'market-sizing',tg:'Scope',nm:'Thesis and lane',ds:'Define the acquisition thesis and the exclusive lane.',note:'The lane is written into the engagement: subsector, buyer type, revenue band and sourcing channel.'},
         {ic:'market-map',tg:'Map',nm:'Target universe',ds:'Map every firm in the lane on the archetype taxonomy.',note:'Each target carries ownership, financing history, technology posture and our estimated revenue band. We walk you through every qualified target profile, and you set the ranking.'},
@@ -12,7 +12,7 @@
         {ic:'due-diligence',tg:'Underwrite',nm:'Diligence and valuation',ds:'Read the data, test the thesis with operators, set the price.',note:'Every figure in the valuation is labeled by its basis before it reaches the acquirer.'},
         {ic:'closing',tg:'Close',nm:'Negotiation and close',ds:'Letter of intent, documents and signing.',note:'We stay on the mandate through signing and the handoff to integration.'}
       ]},
-    corp:{title:'Corporate development', cap:'An outsourced corporate development function for acquirers that do not have one in-house.',
+    corp:{title:'Corporate development', cap:'An outsourced corporate development function.',
       steps:[
         {ic:'buyer-universe',tg:'Build',nm:'Pipeline',ds:'A standing pipeline of targets in the acquirer\'s lanes.',note:'The pipeline is maintained continuously and reviewed with management on a fixed cadence.'},
         {ic:'comparable-companies',tg:'Screen',nm:'Screening',ds:'Rank targets on fit, probability and price.',note:'Targets that fail on culture, concentration or seller expectations are removed early.'},
@@ -20,7 +20,7 @@
         {ic:'board-and-governance',tg:'Approve',nm:'Board material',ds:'Investment memoranda and board papers.',note:'Material is prepared to the standard a sponsor or lender would expect to see.'},
         {ic:'merger',tg:'Integrate',nm:'Integration sequencing',ds:'Order of integration steps after signing.',note:'Sequencing covers systems, customers and people, in the order that protects revenue.'}
       ]},
-    cap:{title:'Capital markets', cap:'Post Series A raises and investor placement. Exclusive by subsector for the life of the mandate.',
+    cap:{title:'Capital markets', cap:'Post Series A raises, exclusive by subsector.',
       steps:[
         {ic:'financial-model',tg:'Prepare',nm:'Materials and model',ds:'Operating model, use of proceeds and investor materials.',note:'We raise for companies that have closed a Series A or later round.'},
         {ic:'investors-and-funds',tg:'Anchor',nm:'Anchor investors',ds:'Sovereign funds and family offices are approached first.',note:'An anchor commitment sets terms before the round is shown more widely.'},
@@ -28,7 +28,7 @@
         {ic:'term-sheet-and-loi',tg:'Terms',nm:'Term sheet',ds:'Negotiate economics, control and protective provisions.',note:'We review the provisions that affect founders most at exit, as set out in Funds Flow.'},
         {ic:'closing',tg:'Close',nm:'Close and funds flow',ds:'Documents, signatures and the closing statement.',note:'The closing statement is reviewed line by line before funds move.'}
       ]},
-    sell:{title:'Sell-side', cap:'Reserved for companies we have already served. The Approach page compares the staggered process (VNTR methodology) with a broad auction (other investment banks).',
+    sell:{title:'Sell-side', cap:'Reserved for companies we have already served.',
       steps:[
         {ic:'management-meeting',tg:'Curate',nm:'Curate with the client',ds:'Cut the names other banks would send to down to the serious buyers.',note:'The list is curated with the client before the process starts. No buyer is contacted until the client has approved it.'},
         {ic:'positioning-map',tg:'Rank',nm:'Stack rank',ds:'Rank the curated list by probability of close.',note:'Each buyer carries a cultural read and its record in diligence.'},
@@ -90,21 +90,21 @@
   var TITLES=['Today','Consolidation','The sort','Valuation'];
   var CAPS=[
     'Twelve operating models, each run today as one integrated company.',
-    'Each model is separating into the pieces it is made of. Acquirers buy the equipment, the transaction work and the customer relationships as separate businesses.',
+    'Each model is separating into the pieces it is made of.',
     'The pieces regroup by what they own: the capacity, the transaction, or the customer.',
     'Three businesses remain, each valued on its own multiple of EBITDA.'
   ];
   function deal(t,d){ return '<div class="deal"><b>'+t+'</b>'+d+'</div>'; }
   function tile(n,l,d){ return '<div class="stat" style="padding:2px 10px"><div class="n" style="font-size:32px">'+n+'</div><div class="l">'+l+'</div><div class="d">'+d+'</div></div>'; }
   var FOOT=[
-    '<p style="margin:0;font-size:14px">A truckload carrier owns trucks, employs or contracts drivers and runs its own dispatch. A brokerage sells, covers loads and pays carriers under one roof. Each is valued as a single business.</p>',
+    '<p style="margin:0;font-size:14px">Each integrated company is valued as a single business.</p>',
     '<div class="row c3">'+
       '<div><h4>Assets</h4>'+deal('DSV acquires DB Schenker','EUR 14.3bn enterprise value, completed April 2025.')+deal('Platform Science takes Trimble telematics','Completed February 2025.')+'</div>'+
       '<div><h4>Processing</h4>'+deal('Roper and DAT acquire the Convoy platform','About $250m, closed July 2025.')+deal('WiseTech acquires E2open','$2.1bn enterprise value, completed August 2025.')+'</div>'+
-      '<div><h4>Agency</h4>'+deal('AD Ports and Noatum acquire MBS Logistics','EUR 70m enterprise value, signed May 2026. A forwarder bought for its customer book.')+'</div>'+
+      '<div><h4>Agency</h4>'+deal('AD Ports and Noatum acquire MBS Logistics','EUR 70m enterprise value, signed May 2026.')+'</div>'+
     '</div>',
-    '<p style="margin:0;font-size:14px">Technology controls assets through robotics and processing through artificial intelligence. An agent-based carrier is a processor, and its independent freight agents and owner operators are the agency.</p>',
-    '<p style="margin:0;font-size:14px">A company that combines the three is valued as one business. Once separated, the processing work carries the highest multiple and the agency the lowest, which is why acquirers extract operations and carrier pay from the companies that sell the freight.</p>'
+    '<p style="margin:0;font-size:14px">Technology controls assets through robotics and processing through artificial intelligence.</p>',
+    '<p style="margin:0;font-size:14px">Once separated, processing carries the highest multiple and agency the lowest.</p>'
   ];
   var stage=document.getElementById('sx-stage');
   if(!stage) return;
@@ -131,8 +131,9 @@
       kids.push({el:e, m:mi, i:ki, n:m[2].length, side:k[1]});
     });
   });
-  var step=0, pinned=false, live=false;
+  var step=0, live=true;   /* stage keeps one height so the page never jumps between steps */
   function put(el,x,y){ el.style.transform='translate('+Math.round(x)+'px,'+Math.round(y)+'px)'; }
+  var maxH=0, lastW=0;
   function layout(){
     var W=stage.clientWidth, narrow=W<700, gap=14, headH=narrow?78:80, rowH=narrow?96:82;
     /* sorted geometry */
@@ -175,7 +176,7 @@
       b.band.classList.toggle('on',on); b.head.classList.toggle('on',step===2);
       var sd=sides[ci]; sd.style.left=g.x+'px'; sd.style.width=g.w+'px'; sd.style.top=(g.y+Math.max(0,(g.h-sd.offsetHeight)/2))+'px'; sd.classList.toggle('on',step===3); sd.setAttribute('aria-hidden', step===3?'false':'true'); b.head.setAttribute('aria-hidden', step===2?'false':'true');
     });
-    stage.style.height=H+'px';
+    if(W!==lastW){ lastW=W; maxH=0; } maxH=Math.max(maxH,H); stage.style.height=maxH+'px';
   }
   var token=document.getElementById('sx-token');
   function tok(frac){ token.style.left=(Math.max(.03,Math.min(.97,frac))*100)+'%'; }
@@ -183,36 +184,27 @@
     ttl.textContent=TITLES[step]; cap.textContent=CAPS[step];
     [].forEach.call(seg.querySelectorAll('button'),function(b){ b.classList.toggle('on', +b.dataset.s===step); });
     foot.innerHTML=FOOT[step]; layout();
-    if(!pinned) tok((step+.5)/4);
+    tok((step+.5)/4); stage.classList.toggle('pop', step===3);
   }
   function setStep(s){ if(s===step) return; step=s; render(); }
   function footLock(){ foot.style.minHeight=''; if(!live) return; var mx=0; for(var s=0;s<4;s++){ foot.innerHTML=FOOT[s]; mx=Math.max(mx,foot.offsetHeight); } foot.style.minHeight=mx+'px'; foot.innerHTML=FOOT[step]; }
-  render();
-  /* scroll map while pinned: four steps over the first 76 percent, then the three
-     categories enlarge toward the viewer before the section releases */
-  var STEPS_END=.76, ZOOM_START=.80, exEl=document.getElementById('sx'), fades=[exEl.querySelector('.ex-head'), exEl.querySelector('.sx-nav'), foot], zBase=null;
-  function zoom(z){
-    if(z<=0){ stage.style.transform=''; fades.forEach(function(f){ f.style.opacity=''; }); exEl.style.background=''; zBase=null; return; }
-    if(zBase===null){ stage.style.transform=''; var r=stage.getBoundingClientRect(); zBase=(window.innerHeight+70)/2-(r.top+r.height/2); }
-    var e=z*z*(3-2*z);                                   /* ease in and out */
-    var maxS=Math.min(1.34,(window.innerWidth-24)/stage.clientWidth,(window.innerHeight-96)/stage.clientHeight);
-    stage.style.transform='translate3d(0,'+(zBase*e)+'px,0) scale('+(1+(Math.max(1.05,maxS)-1)*e)+')';
-    fades.forEach(function(f){ f.style.opacity=String(Math.max(0,1-e*1.6)); });
-    exEl.style.background='rgba(31,31,31,'+Math.max(0,1-e*1.4)+')';
+  footLock(); render();
+  /* plays on its own; the sailboat track, the labels and the button all control it */
+  var sxBtn=document.getElementById('sx-play'), sxTimer=null, sxVisible=false, sxUser=false, HOLD=[3200,3600,4200,6000];
+  function sxStop(){ if(sxTimer){ clearTimeout(sxTimer); sxTimer=null; } sxBtn.textContent='Play'; }
+  function sxTick(){ sxTimer=setTimeout(function(){ step=(step+1)%4; render(); sxTick(); }, HOLD[step]); }
+  function sxStart(){ if(sxTimer) return; sxBtn.textContent='Pause'; sxTick(); }
+  function sxGo(n){ sxUser=true; sxStop(); if(n!==step){ step=n; render(); } }
+  sxBtn.addEventListener('click',function(){ if(sxTimer){ sxUser=true; sxStop(); } else { sxUser=false; sxStart(); } });
+  seg.addEventListener('click',function(ev){ var b=ev.target.closest('button'); if(b) sxGo(+b.dataset.s); });
+  V.scrub(document.getElementById('sx-track'),function(fr){ sxGo(Math.min(3,Math.floor(fr*4))); });
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(es){ es.forEach(function(e){
+      sxVisible=e.isIntersecting; if(sxVisible && !sxUser && !V.reduce) sxStart(); else if(!sxVisible) sxStop();
+    });},{threshold:.3}).observe(stage);
   }
-  var pin=V.pin(document.getElementById('sx-pin'),{len:3.4,
-    on:function(p){
-      if(pinned){ setStep(Math.min(3,Math.floor(p/STEPS_END*4))); tok(Math.min(1,p/STEPS_END)); zoom(Math.max(0,Math.min(1,(p-ZOOM_START)/(1-ZOOM_START-.03)))); }
-      else { setStep(Math.min(3,Math.floor(p*4))); tok(p); }
-    },
-    mode:function(on,lv){ pinned=on; live=!!lv; if(!on) zoom(0); footLock(); layout(); }});
-  seg.addEventListener('click',function(ev){
-    var b=ev.target.closest('button'); if(!b) return;
-    if(pinned) pin.scrollTo((+b.dataset.s+.5)/4*STEPS_END); else { step=+b.dataset.s; render(); }
-  });
-  window.addEventListener('resize',function(){ zBase=null; });
-  window.addEventListener('resize',layout);
-  if(document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ layout(); pin.set(); });
+  window.addEventListener('resize',function(){ footLock(); layout(); });
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ footLock(); layout(); });
 
   /* ---------- depth ---------- */
   var hero=document.getElementById('hero'), hc=document.getElementById('hero-copy'), hs=document.getElementById('hero-ship');
